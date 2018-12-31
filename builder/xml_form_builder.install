@@ -182,3 +182,22 @@ function xml_form_builder_schema() {
 
   return $schema;
 }
+
+/**
+ * Update to allow slashes in form names by using machine names.
+ * /
+function xml_form_builder_update_8001() {
+  module_load_include('inc', 'xml_form_builder', 'XMLFormDatabase');
+  // Get the names of all existing forms in the database.
+  $form_names = \XMLFormDatabase::getNames();
+  // Update all form entries to include a machine name.
+  foreach($form_names as $form_name) {
+    $machine_name = getMachineName($form_name);
+    $connection = \Drupal::database();
+    $connection->update('xml_forms')->fields([
+      'machine_name' => $machine_name,
+    ])
+    ->condition('form_name', $form_name, '==')
+    ->execute();
+  }
+}
